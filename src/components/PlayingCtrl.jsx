@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import propTypes from 'prop-types';
-import Slider from '@material-ui/lab/Slider';
+import Slider from '@material-ui/core/Slider';
 import Paper from '@material-ui/core/Paper';
 import SkipPrevious from '@material-ui/icons/SkipPrevious';
 import IconButton from '@material-ui/core/IconButton';

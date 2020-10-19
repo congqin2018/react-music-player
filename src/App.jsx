@@ -10,6 +10,8 @@ import SearchView from "./views/SearchView";
 import Header from './components/Header';
 import PlayingView from './views/PlayingView';
 import keyboardEvents from './utils/keyboardEvents';
+import find from 'lodash/find';
+import ReactAudio from './components/ReactAudio'
 
 
 const mapStateToProps = state => ({
@@ -18,6 +20,7 @@ const mapStateToProps = state => ({
   songs: state.songs,
   playState: state.playState,
   repeatType: state.common.repeat,
+  audio: state.audio
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -42,14 +45,14 @@ class App extends Component {
 
   componentDidMount() {
     const { songs, toggle } = this.props;
-    if (songs[0]) {
-      if(songs[0].source === 'local') {
-        this.audioPlayer.src = URL.createObjectURL(songs[0].detail);
-      } else { // network song
-        this.audioPlayer.src = songs[0].detail.url;
-      }
+    // if (songs[0]) {
+    //   if(songs[0].source === 'local') {
+    //     this.audioPlayer.src = URL.createObjectURL(songs[0].detail);
+    //   } else { // network song
+    //     this.audioPlayer.src = songs[0].detail.url;
+    //   }
       
-    }
+    // }
     this.releaseKeyboardEvents = keyboardEvents({
       playNext: this.playNext,
       playPrevious: this.playPrevious,
@@ -140,10 +143,7 @@ class App extends Component {
     play(prevSongId);
   }
 
-  updateTime = () => {
-    const currentTime = 100 * this.audioPlayer.currentTime / this.audioPlayer.duration || 0;
-    this.setState({ currentTime });
-  }
+ 
 
   playSong = (id) => {
     const { songs } = this.props;
@@ -179,8 +179,10 @@ class App extends Component {
       currentTime, snackBarOpen, snackMsg, installEvent, addToHomeScreenUIVisible, hideSnackAction,
     } = this.state;
     const {
-      searchResult, songs, playState, toggle, repeatType, page,
+      searchResult, songs, playState, toggle, repeatType, page, audio
     } = this.props;
+
+
     switch (target) {
       case SEARCH_PAGE:
         return <SearchView
@@ -226,8 +228,16 @@ class App extends Component {
       currentTime, snackBarOpen, snackMsg, installEvent, addToHomeScreenUIVisible, hideSnackAction,
     } = this.state;
     const {
-      songs, playState, toggle, repeatType, page,
+      playState, toggle, repeatType, page, audio
     } = this.props;
+
+    const {
+      volume, isPlaying, percent, isFavorite, progress, error,
+      duration, isRepeating, songs, currentID, autoplay, isLooping
+    } = audio;
+
+    let song = find(songs, (o) => o.id === currentID);
+
     return (
       <>
         <Header
@@ -237,15 +247,17 @@ class App extends Component {
           openSnackbar={() => this.setState({ snackBarOpen: true })}
           onSearch={(keyword) => this.handleSearch(keyword)}
         />
-        <audio
-          hidden
-          controls
-          onEnded={this.songEnded}
-          onTimeUpdate={this.updateTime}
-          ref={(audio) => { this.audioPlayer = audio; }}
-        >
-          <track kind="captions" {...{}} />
-        </audio>
+
+        <ReactAudio
+            ref="audio"
+            autoplay={false}
+            source={song ? song.audioFile : null}
+            onProgress={this.handleProgress}
+            onTimeupdate={this.handleTimeupdate}
+            onError={this.handleError}
+            onEnded={this.handleEnd}
+            onLoadedData={this.handleLoadedData} />
+
         {this.renderMain(page)}
         <Snackbar
           open={snackBarOpen}

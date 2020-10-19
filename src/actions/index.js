@@ -1,5 +1,5 @@
 import mediaSession from '../utils/media-session';
-
+import * as types from '../constants/ActionTypes';
 export const ADD_SONGS = 'ADD_SONGS';
 export const REMOVE_SONGS = 'REMOVE_SONGS';
 export const TOGGLE_PLAYING = 'TOGGLE_PLAYING';
@@ -37,6 +37,20 @@ export const playSong = (id) => {
     id,
   };
 };
+/////////////////
+
+
+export function play(audio, ind) {
+  return { type: types.PLAY, audio, ind }
+}
+
+export function previous(audio) {
+  return { type: types.PREVIOUS, audio }
+}
+
+
+/////////////////////
+
 
 export const repeatType = id => ({
   type: REPEAT,
@@ -95,15 +109,4 @@ export const fetchDetailAndPlay = song => (dispatch, getState) => {
   })
   .then(song => dispatch(addNetworkSong(song)))
   .then(() => dispatch(playSong(-2)))
-  
-  
-  // .then()
-
-  // https://api.muxiv.com/music/url?id=5231115&lang=en#
 }
-// const fetchPosts = subreddit => dispatch => {
-//   dispatch(requestPosts(subreddit))
-//   return fetch(`https://www.reddit.com/r/${subreddit}.json`)
-//     .then(response => response.json())
-//     .then(json => dispatch(receivePosts(subreddit, json)))
-// }

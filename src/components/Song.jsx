@@ -9,8 +9,8 @@ import Avatar from '@material-ui/core/Avatar';
 import MoreVert from '@material-ui/icons/MoreVert';
 import MusicNote from '@material-ui/icons/MusicNote';
 
-const Song = ({ song, handleClick, handleIconClick }) => (
-  <ListItem className="song" onClick={handleClick}>
+const Song = ({ song, onClick, handleIconClick }) => (
+  <ListItem className="song" onClick={onClick}>
     <ListItemAvatar>
       <Avatar>
         <MusicNote />
@@ -33,7 +33,7 @@ const Song = ({ song, handleClick, handleIconClick }) => (
 
 Song.propTypes = {
   song: PropTypes.objectOf(PropTypes.any).isRequired,
-  handleClick: PropTypes.func.isRequired,
+  onClick: PropTypes.func.isRequired,
   handleIconClick: PropTypes.func.isRequired,
 };
 export default Song;

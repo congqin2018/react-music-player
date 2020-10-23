@@ -3,7 +3,7 @@ import {
     UPDATE_VOLUME, NEXT, PREVIOUS,
     PLAY, SET_TIME, SET_PROGRESS,
     TOGGLE_FAVORITE, TOGGLE_REPEAT,
-    UPDATE_POSITION, PAUSE, TOGGLE_LOOP
+    UPDATE_POSITION, PAUSE, TOGGLE_LOOP, ADD_NETWORK_SONG
   } from '../constants/ActionTypes'
   
   import find from 'lodash/find';
@@ -64,7 +64,7 @@ import {
       case PLAY:
         return {
           ...state,
-          currentID: action.ind,
+          currentID: action.songId,
           ...getAudioState(action.audio) };
       case PAUSE:
       case ERROR:
@@ -97,7 +97,15 @@ import {
       case TOGGLE_REPEAT:
         return {...state, isRepeating: !state.isRepeating };
       case TOGGLE_LOOP:
-        return {...state, ...getAudioState(action.audio) };
+        return { ...state, ...getAudioState(action.audio) };
+      case ADD_NETWORK_SONG:
+
+      　
+        let news = { ...state, songs: [...state.songs, action.song] };
+      console.log('>>>add newwo song news ');
+      console.log(news);
+      console.log(action.song);
+      return news;
       default:
         return state
     }

@@ -20,10 +20,7 @@ export const addLocalSongs = localSongs => ({
   songs: localSongs.map(i => ({source: 'local', detail: i}))
 });
 
-export const addNetworkSong = networkSong => ({
-  type: ADD_SONGS,
-  songs: [{source: 'network', detail: networkSong}]
-});
+
 
 export const removeSong = id => ({
   type: REMOVE_SONGS,
@@ -40,14 +37,17 @@ export const playSong = (id) => {
 /////////////////
 
 
-export function play(audio, ind) {
-  return { type: types.PLAY, audio, ind }
+export function play(audio, songId) {
+  return { type: types.PLAY, audio, songId }
 }
 
 export function previous(audio) {
   return { type: types.PREVIOUS, audio }
 }
 
+export function addNetworkSong(song) {
+  return { type: types.ADD_NETWORK_SONG, song }
+}
 
 /////////////////////
 
@@ -104,9 +104,13 @@ export const fetchDetailAndPlay = song => (dispatch, getState) => {
   return fetch(`https://cors-anywhere.herokuapp.com/https://api.muxiv.com/music/url?id=${song.id}&lang=en#`)
   .then(response => response.json())
   .then(json => {
-    song['url'] = json[0]['url']
-    return song
+    return {
+      id: `network_${json[0].id}`,
+      from: 'network',
+      url: json[0].url,
+      detail: song
+    }
   })
   .then(song => dispatch(addNetworkSong(song)))
-  .then(() => dispatch(playSong(-2)))
+  // .then(() => dispatch(playSong(-2)))
 }

@@ -5,12 +5,13 @@ import propTypes from 'prop-types';
 import AddSongs from '../components/AddSongs';
 import SongList from '../components/SongList';
 import NowPlaying from '../components/NowPlaying';
-import { togglePlaying, nowPlayingPage, addLocalSongs } from '../actions';
+import { togglePlaying, nowPlayingPage, addLocalSongs, play } from '../actions';
 
 const mapDispatchToProps = dispatch => ({
   toggle: () => dispatch(togglePlaying()),
   openNowPlaying: () => dispatch(nowPlayingPage()),
   addSongs: songs => dispatch(addLocalSongs(songs)),
+  play: (audio, id) => dispatch(play(audio, id))
 });
 
 class PlayListView extends Component {
@@ -20,6 +21,15 @@ class PlayListView extends Component {
     // eslint-disable-next-line no-param-reassign
     event.dataTransfer.dropEffect = 'copy';
   };
+
+  // handleItemClick = (song) => {
+
+  //   this.props.play()
+
+    
+  // }
+
+
 
   render() {
     const {
@@ -39,7 +49,10 @@ class PlayListView extends Component {
           return false;
         }}
       >
-        <SongList songs={songs} />
+        <SongList
+          songs={songs}
+          onItemClick={this.props.onItemClick}
+        />
         <AddSongs />
         <NowPlaying
           togglePlaying={toggle}
@@ -61,6 +74,7 @@ PlayListView.propTypes = {
   playState: propTypes.objectOf(propTypes.any).isRequired,
   currentTime: propTypes.number.isRequired,
   openSnackbar: propTypes.func.isRequired,
+  onItemClick: propTypes.func.isRequired,
 };
 
 export default connect(null, mapDispatchToProps)(PlayListView);

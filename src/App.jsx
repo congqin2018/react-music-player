@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Snackbar from '@material-ui/core/Snackbar';
 import Button from '@material-ui/core/Button';
-import { SEARCH_PAGE, PLAYLIST_PAGE, NOW_PLAYING_PAGE,  togglePlaying, playSong, fetchSongs } from './actions';
+import { SEARCH_PAGE, PLAYLIST_PAGE, NOW_PLAYING_PAGE,  togglePlaying, playSong, fetchSongs, play } from './actions';
 
 import PlayListView from './views/PlayListView';
 import SearchView from "./views/SearchView";
@@ -27,6 +27,7 @@ const mapDispatchToProps = dispatch => ({
   toggle: () => dispatch(togglePlaying()),
   playSong: id => dispatch(playSong(id)),
   searchSong: keyword => dispatch(fetchSongs(keyword)),
+  play: (audio, id) => dispatch(play(audio, id)),
 });
 
 class App extends Component {
@@ -41,6 +42,7 @@ class App extends Component {
       installEvent: null,
       addToHomeScreenUIVisible: false,
     };
+    this.audioRef = React.createRef();
   }
 
   componentDidMount() {
@@ -71,21 +73,21 @@ class App extends Component {
     const { songs } = nextProps;
     const { installEvent, hasRejectedInstall } = this.state;
     if (nextProps.playState !== playState) {
-      if (!nextProps.playState.playing) {
-        // PAUSE
-        this.audioPlayer.pause();
-      } else if (nextProps.playState.songId === -2) { // play last song
-        this.playSong(songs.length - 1);
-      } else if (nextProps.playState.songId === -1) {
-        this.playSong(0);
-      } else if (nextProps.playState.songId === playState.songId) {
-        // RESUME
-        console.log('Should only resume');
-        this.audioPlayer.play();
-        // Start playing
-      } else {
-        this.playSong(nextProps.playState.songId);
-      }
+      // if (!nextProps.playState.playing) {
+      //   // PAUSE
+      //   this.audioPlayer.pause();
+      // } else if (nextProps.playState.songId === -2) { // play last song
+      //   this.playSong(songs.length - 1);
+      // } else if (nextProps.playState.songId === -1) {
+      //   this.playSong(0);
+      // } else if (nextProps.playState.songId === playState.songId) {
+      //   // RESUME
+      //   console.log('Should only resume');
+      //   this.audioPlayer.play();
+      //   // Start playing
+      // } else {
+      //   this.playSong(nextProps.playState.songId);
+      // }
       if (installEvent && !hasRejectedInstall) {
         installEvent.prompt();
         installEvent.userChoice.then((choiceResult) => {
@@ -174,14 +176,25 @@ class App extends Component {
     searchSong(keyword);
   }
 
+  handlePlayListItemClick = (songId) => {
+
+    console.log('>>>congqin audioRef');
+    console.log(this.audioRef.current);
+    console.log(songId);
+    this.props.play(this.audioRef.current.audioElement, songId);
+  }
+
   renderMain = target => {
     const {
       currentTime, snackBarOpen, snackMsg, installEvent, addToHomeScreenUIVisible, hideSnackAction,
     } = this.state;
     const {
-      searchResult, songs, playState, toggle, repeatType, page, audio
+      searchResult, playState, toggle, repeatType, page, audio
     } = this.props;
 
+    const songs = audio.songs;
+    console.log('>>>>congqin songs ');
+    console.log(songs);
 
     switch (target) {
       case SEARCH_PAGE:
@@ -198,7 +211,8 @@ class App extends Component {
           toggle={toggle}
           playState={playState}
           currentTime={currentTime}
-          openSnackbar={msg => this.setState({ snackBarOpen: true, snackMsg: msg })} />
+          openSnackbar={msg => this.setState({ snackBarOpen: true, snackMsg: msg })}
+          onItemClick={this.handlePlayListItemClick} />
 
       case NOW_PLAYING_PAGE:
         return <PlayingView
@@ -249,9 +263,9 @@ class App extends Component {
         />
 
         <ReactAudio
-            ref="audio"
+            ref={this.audioRef}
             autoplay={false}
-            source={song ? song.audioFile : null}
+            source={song ? song.url : null}
             onProgress={this.handleProgress}
             onTimeupdate={this.handleTimeupdate}
             onError={this.handleError}
